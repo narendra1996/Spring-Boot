@@ -10,7 +10,7 @@ public class UserRegistrationDTO {
 	
 	private String email;
 	
-	private String acoountType;
+	private String accountType;
 	
 	private String password;
 	
@@ -46,12 +46,12 @@ public class UserRegistrationDTO {
 		this.email = email;
 	}
 
-	public String getAcoountType() {
-		return acoountType;
+	public String getAccountType() {
+		return accountType;
 	}
 
-	public void setAcoountType(String acoountType) {
-		this.acoountType = acoountType;
+	public void setAccountType(String acoountType) {
+		this.accountType = acoountType;
 	}
 
 	public String getPassword() {

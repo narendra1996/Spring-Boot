@@ -80,7 +80,7 @@ public class UserRegistration {
 	
 	@Override
 	public String toString() {
-		return "Id: "+id +" firstName: "+firstName+" lastName: "+lastName+" email: "+email+"accountType: "+accountType+"password: "+password;
+		return "Id: "+id +" firstName: "+firstName+" lastName: "+lastName+" email: "+email+" accountType: "+accountType+" password: "+password;
 		
 	}
 }
