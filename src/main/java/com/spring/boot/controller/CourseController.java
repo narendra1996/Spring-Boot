@@ -13,15 +13,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.spring.boot.dao.CourseDAOImpl;
 import com.spring.boot.dto.UserLoginDTO;
 import com.spring.boot.entity.UserRegistration;
+import com.spring.boot.service.MailService;
 
 @RestController
 @RequestMapping(value ="/course")
-@ComponentScan("com.spring.boot.dao")
+@ComponentScan({"com.spring.boot.dao", "com.spring.boot.service"})
 @EnableAutoConfiguration
 public class CourseController {
 	
@@ -29,6 +31,9 @@ public class CourseController {
 
 	@Autowired
 	CourseDAOImpl courseDAOImpl;
+	
+	@Autowired
+	MailService mailService;
 	
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	@ResponseBody
@@ -80,6 +85,22 @@ public class CourseController {
 		logger.info("user login end");
 		return ResponseEntity.status(200).body(json);
 //		"{\"message\" : \""+"Email Id LogIn Succesful"+"\"}"
+	}
+	
+	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<String> mailService(@RequestParam String mailId) throws SQLException {
+		logger.info("reset password service start");
+		try {
+			
+			mailService.sendSimpleMessage(mailId);
+			
+		}catch(Exception e){
+			logger.info("error while registering user: "+ e.getMessage());
+			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while sending email, Please try again"+"\"}");
+		}
+		logger.info("user login end");
+		return ResponseEntity.status(200).body("{\"message\" : \""+"Recovery password sent to your Email Id"+"\"}");
 	}
 	
 	public String constructUserJson(UserRegistration user) throws JSONException{
