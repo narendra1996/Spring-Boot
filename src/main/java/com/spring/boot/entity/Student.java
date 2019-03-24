@@ -1,0 +1,64 @@
+package com.spring.boot.entity;
+
+import java.sql.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
+@Entity(name = "STUDENT")
+public class Student {
+
+	
+	private static long millis = System.currentTimeMillis(); 
+
+	@Column
+	private String id;
+	
+	@Column
+	private String courseId;
+	
+	@Column
+	private String instructorId;
+
+	@Column
+	private String deptId;
+	
+	@Column
+	private static Date enrollDate = new Date(millis);
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getCourseId() {
+		return courseId;
+	}
+
+	public void setCourseId(String courseId) {
+		this.courseId = courseId;
+	}
+
+	public String getDeptId() {
+		return deptId;
+	}
+
+	public void setDeptId(String deptId) {
+		this.deptId = deptId;
+	}
+
+	public Date getEnrollDate() {
+		return enrollDate;
+	}	
+	
+	public String getInstructorId() {
+		return instructorId;
+	}
+
+	public void setInstructorId(String instructorId) {
+		this.instructorId = instructorId;
+	}
+}

@@ -20,6 +20,7 @@ import com.spring.boot.dao.CourseDAOImpl;
 import com.spring.boot.dto.UserLoginDTO;
 import com.spring.boot.entity.UserRegistration;
 import com.spring.boot.service.MailService;
+import com.spring.boot.service.UserService;
 
 @RestController
 @RequestMapping(value ="/course")
@@ -34,6 +35,9 @@ public class CourseController {
 	
 	@Autowired
 	MailService mailService;
+	
+	@Autowired
+	UserService userService;
 	
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	@ResponseBody
@@ -84,7 +88,6 @@ public class CourseController {
 		}
 		logger.info("user login end");
 		return ResponseEntity.status(200).body(json);
-//		"{\"message\" : \""+"Email Id LogIn Succesful"+"\"}"
 	}
 	
 	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
@@ -92,12 +95,12 @@ public class CourseController {
 	public ResponseEntity<String> mailService(@RequestParam String mailId) throws SQLException {
 		logger.info("reset password service start");
 		try {
-			
-			mailService.sendSimpleMessage(mailId);
-			
+			String tempPassword = userService.generateRestPassword();
+			courseDAOImpl.restPassword(mailId, tempPassword);
+			mailService.sendSimpleMessage(mailId);	
 		}catch(Exception e){
 			logger.info("error while registering user: "+ e.getMessage());
-			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while sending email, Please try again"+"\"}");
+			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while resetting  password, Please try again"+"\"}");
 		}
 		logger.info("user login end");
 		return ResponseEntity.status(200).body("{\"message\" : \""+"Recovery password sent to your Email Id"+"\"}");

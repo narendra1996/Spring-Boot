@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import com.spring.boot.entity.UserRegistration;
@@ -85,5 +84,17 @@ public class CourseDAOImpl {
 			throw(e);
 		}
 		return user;
+	}
+	
+	public void restPassword(String email, String tempPassword) {
+		try {
+			String query = "UPDATE USERS SET TEMP_PASSWORD=:password WHERE EMAIL=:emailId";
+			Map<String,String> map = new HashMap<String,String>();
+			map.put("password", tempPassword);
+			map.put("emailId", email);
+			jdbcTemplate.update(query, map);
+		}catch(Exception e) {
+			logger.info("error while updating temporary Password: "+e.getMessage());
+		}
 	}
 }
