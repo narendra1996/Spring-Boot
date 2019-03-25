@@ -3,13 +3,14 @@ package com.spring.boot.entity;
 import java.sql.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Entity(name = "INSTRUCTOR")
 public class Instructor {
 	
 	private static long millis = System.currentTimeMillis(); 
 
-	@Column
+	@Id
 	private String id;
 	
 	@Column

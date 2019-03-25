@@ -63,17 +63,17 @@ public class CourseController {
 	@ResponseBody
 	public ResponseEntity<String> userLogin( @RequestBody UserLoginDTO dto) throws SQLException {
 		logger.info("user login start");
-		UserRegistration user = null;
-		String json = null;
+/*		UserRegistration user = null;
+		String json = null;*/
 		try {
 				if(!courseDAOImpl.validateEmail(dto.getEmail())) {
 					logger.info("Email validation passed validating password");
 					
 					if(courseDAOImpl.validatePassword(dto.getEmail(), dto.getPassword())) {
-						logger.info("Password validation passed fetching User details");
+/*						 logger.info("Password validation passed fetching User details");
 						 user = courseDAOImpl.fetchUserDetails(dto.getEmail(), dto.getPassword());
 						 json  = constructUserJson(user);
-						 logger.info(json);
+						 logger.info(json);*/
 					}
 					else {
 						return ResponseEntity.status(500).body("{\"message\" : \""+"Incorrect Password, Please try again"+"\"}");
@@ -87,7 +87,7 @@ public class CourseController {
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while logging in, Please try again"+"\"}");
 		}
 		logger.info("user login end");
-		return ResponseEntity.status(200).body(json);
+		return ResponseEntity.status(200).body("{\"message\" : \""+"Login successful"+"\"}");
 	}
 	
 	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
@@ -99,13 +99,28 @@ public class CourseController {
 			courseDAOImpl.restPassword(mailId, tempPassword);
 			mailService.sendSimpleMessage(mailId);	
 		}catch(Exception e){
-			logger.info("error while registering user: "+ e.getMessage());
+			logger.info("error while resetting password: "+ e.getMessage());
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while resetting  password, Please try again"+"\"}");
 		}
 		logger.info("user login end");
 		return ResponseEntity.status(200).body("{\"message\" : \""+"Recovery password sent to your Email Id"+"\"}");
 	}
 	
+	
+	@RequestMapping(value = "/getUserDetail", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<String> userDetailService(@RequestParam String id) throws SQLException {
+		UserRegistration user = null;
+		logger.info("userDetailService start");
+		try {
+			user = courseDAOImpl.fetchUserDetails(id);
+		}catch(Exception e){
+			logger.info("error while fetching user details: "+ e.getMessage());
+			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while resetting  password, Please try again"+"\"}");
+		}
+		logger.info("userDetailService end");
+		return ResponseEntity.status(200).body(user.toString());
+	}
 	public String constructUserJson(UserRegistration user) throws JSONException{
 		logger.info("constructing user Json start");
 		JSONObject data = new JSONObject();

@@ -1,5 +1,8 @@
 package com.spring.boot.entity;
 
+import javax.persistence.Entity;
+
+//@Entity(name = "COURSE_DETAIL")
 public class CourseDetail {
 
 	

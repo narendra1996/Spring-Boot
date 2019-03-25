@@ -1,8 +1,10 @@
 package com.spring.boot.entity;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 
+@Entity(name = "DEPARTMENT")
 public class Department {
 	
 	@Id

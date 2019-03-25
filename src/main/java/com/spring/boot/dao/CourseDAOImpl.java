@@ -75,10 +75,10 @@ public class CourseDAOImpl {
 		
 	}
 	
-	public UserRegistration  fetchUserDetails(String email, String password) throws Exception{
-		UserRegistration user = new UserRegistration();
+	public UserRegistration  fetchUserDetails(String id) throws Exception{
+		UserRegistration user = null;
 		try {
-			user = userRegistrationRepository.getUserDetails(email, password);
+//			user = userRegistrationRepository.findById(Integer.parseInt(id));
 		}catch(Exception e) {
 			log.info("Exception while registering User: "+ e);
 			throw(e);

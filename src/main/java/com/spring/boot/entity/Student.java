@@ -4,14 +4,14 @@ import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Entity(name = "STUDENT")
 public class Student {
 
-	
 	private static long millis = System.currentTimeMillis(); 
 
-	@Column
+	@Id
 	private String id;
 	
 	@Column
