@@ -78,7 +78,7 @@ public class CourseDAOImpl {
 	public UserRegistration  fetchUserDetails(String id) throws Exception{
 		UserRegistration user = null;
 		try {
-//			user = userRegistrationRepository.findById(Integer.parseInt(id));
+			user = userRegistrationRepository.getUser(id);
 		}catch(Exception e) {
 			log.info("Exception while registering User: "+ e);
 			throw(e);
@@ -96,5 +96,16 @@ public class CourseDAOImpl {
 		}catch(Exception e) {
 			logger.info("error while updating temporary Password: "+e.getMessage());
 		}
+	}
+
+	public UserRegistration fetchUserId(String email, String password) {
+		UserRegistration user = null;
+		try {
+			user = userRegistrationRepository.getUserDetails(email, password);
+		}catch(Exception e) {
+			log.info("Exception while registering User: "+ e);
+			throw(e);
+		}
+		return user;
 	}
 }

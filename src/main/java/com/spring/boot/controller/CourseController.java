@@ -61,19 +61,16 @@ public class CourseController {
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<String> userLogin( @RequestBody UserLoginDTO dto) throws SQLException {
+	public ResponseEntity<?> userLogin( @RequestBody UserLoginDTO dto) throws SQLException {
 		logger.info("user login start");
-/*		UserRegistration user = null;
-		String json = null;*/
+		UserRegistration user = null;
 		try {
 				if(!courseDAOImpl.validateEmail(dto.getEmail())) {
 					logger.info("Email validation passed validating password");
 					
 					if(courseDAOImpl.validatePassword(dto.getEmail(), dto.getPassword())) {
-/*						 logger.info("Password validation passed fetching User details");
-						 user = courseDAOImpl.fetchUserDetails(dto.getEmail(), dto.getPassword());
-						 json  = constructUserJson(user);
-						 logger.info(json);*/
+					 logger.info("Password validation passed fetching User details");
+						 user = courseDAOImpl.fetchUserId(dto.getEmail(), dto.getPassword());
 					}
 					else {
 						return ResponseEntity.status(500).body("{\"message\" : \""+"Incorrect Password, Please try again"+"\"}");
@@ -87,23 +84,23 @@ public class CourseController {
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while logging in, Please try again"+"\"}");
 		}
 		logger.info("user login end");
-		return ResponseEntity.status(200).body("{\"message\" : \""+"Login successful"+"\"}");
+		return ResponseEntity.status(200).body(user);
 	}
 	
 	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<String> mailService(@RequestParam String mailId) throws SQLException {
+	public ResponseEntity<String> mailService(@RequestParam String emailId) throws SQLException {
 		logger.info("reset password service start");
 		try {
 			String tempPassword = userService.generateRestPassword();
-			courseDAOImpl.restPassword(mailId, tempPassword);
-			mailService.sendSimpleMessage(mailId);	
+			courseDAOImpl.restPassword(emailId, tempPassword);
+			mailService.sendRecoveryEmail(emailId, tempPassword);	
 		}catch(Exception e){
 			logger.info("error while resetting password: "+ e.getMessage());
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while resetting  password, Please try again"+"\"}");
 		}
 		logger.info("user login end");
-		return ResponseEntity.status(200).body("{\"message\" : \""+"Recovery password sent to your Email Id"+"\"}");
+		return ResponseEntity.status(200).body("{\"message\" : \""+"Recovery password sent to your Email"+"\"}");
 	}
 	
 	
@@ -116,12 +113,13 @@ public class CourseController {
 			user = courseDAOImpl.fetchUserDetails(id);
 		}catch(Exception e){
 			logger.info("error while fetching user details: "+ e.getMessage());
-			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while resetting  password, Please try again"+"\"}");
+			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while retrieving  User Details"+"\"}");
 		}
 		logger.info("userDetailService end");
 		return ResponseEntity.status(200).body(user.toString());
 	}
-	public String constructUserJson(UserRegistration user) throws JSONException{
+	
+/*	public String constructUserJson(UserRegistration user) throws JSONException{
 		logger.info("constructing user Json start");
 		JSONObject data = new JSONObject();
 		JSONObject json = new JSONObject();
@@ -133,5 +131,5 @@ public class CourseController {
 		data.putOpt("data", json);
 		logger.info("constructing user Json end");
 		return data.toString();
-	}
+	}*/
 }
