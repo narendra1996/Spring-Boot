@@ -71,6 +71,7 @@ public class CourseController {
 					if(courseDAOImpl.validatePassword(dto.getEmail(), dto.getPassword())) {
 					 logger.info("Password validation passed fetching User details");
 						 user = courseDAOImpl.fetchUserId(dto.getEmail(), dto.getPassword());
+						 user.setPassword(null);
 					}
 					else {
 						return ResponseEntity.status(500).body("{\"message\" : \""+"Incorrect Password, Please try again"+"\"}");
@@ -106,17 +107,18 @@ public class CourseController {
 	
 	@RequestMapping(value = "/getUserDetail", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<String> userDetailService(@RequestParam String id) throws SQLException {
+	public ResponseEntity<?> userDetailService(@RequestParam String id) throws SQLException {
 		UserRegistration user = null;
 		logger.info("userDetailService start");
 		try {
 			user = courseDAOImpl.fetchUserDetails(id);
+			user.setPassword(null);
 		}catch(Exception e){
 			logger.info("error while fetching user details: "+ e.getMessage());
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while retrieving  User Details"+"\"}");
 		}
 		logger.info("userDetailService end");
-		return ResponseEntity.status(200).body(user.toString());
+		return ResponseEntity.status(200).body(user);
 	}
 	
 /*	public String constructUserJson(UserRegistration user) throws JSONException{
