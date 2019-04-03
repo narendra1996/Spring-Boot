@@ -2,8 +2,6 @@ package com.spring.boot.controller;
 
 import java.sql.SQLException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.spring.boot.dao.CourseDAOImpl;
+import com.spring.boot.dto.ChangePasswordDTO;
 import com.spring.boot.dto.UserLoginDTO;
 import com.spring.boot.entity.UserRegistration;
 import com.spring.boot.service.MailService;
@@ -41,7 +40,7 @@ public class CourseController {
 	
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<String> userRegistration( @RequestBody UserRegistration dto) throws SQLException {
+	public ResponseEntity<String> userRegistration(@RequestBody UserRegistration dto) {
 		logger.info("new user registration start");
 		try {
 				if(courseDAOImpl.validateEmail(dto.getEmail())) {
@@ -52,7 +51,7 @@ public class CourseController {
 					return ResponseEntity.status(500).body("{\"message\" : \""+"Email Id already registered, Please try to login"+"\"}");
 				}			
 		}catch(Exception e){
-			logger.info("error while registering user: "+ e.getMessage());
+			logger.error("error while registering user: "+ e.getMessage());
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while registering user, Please retry again"+"\"}");
 		}
 		logger.info("new user registration end");
@@ -61,7 +60,7 @@ public class CourseController {
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<?> userLogin( @RequestBody UserLoginDTO dto) throws SQLException {
+	public ResponseEntity<?> userLogin( @RequestBody UserLoginDTO dto) {
 		logger.info("user login start");
 		UserRegistration user = null;
 		try {
@@ -81,7 +80,7 @@ public class CourseController {
 					return ResponseEntity.status(500).body("{\"message\" : \""+"Incorrect Email Id, Please try again"+"\"}");
 				}			
 		}catch(Exception e){
-			logger.info("error while registering user: "+ e.getMessage());
+			logger.error("error while registering user: "+ e.getMessage());
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while logging in, Please try again"+"\"}");
 		}
 		logger.info("user login end");
@@ -90,31 +89,50 @@ public class CourseController {
 	
 	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<String> mailService(@RequestParam String emailId) throws SQLException {
+	public ResponseEntity<String> mailService(@RequestParam String emailId) {
 		logger.info("reset password service start");
 		try {
 			String tempPassword = userService.generateRestPassword();
 			courseDAOImpl.restPassword(emailId, tempPassword);
 			mailService.sendRecoveryEmail(emailId, tempPassword);	
 		}catch(Exception e){
-			logger.info("error while resetting password: "+ e.getMessage());
+			logger.error("error while resetting password: "+ e.getMessage());
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while resetting  password, Please try again"+"\"}");
 		}
-		logger.info("user login end");
+		logger.info("reset password service end");
 		return ResponseEntity.status(200).body("{\"message\" : \""+"Recovery password sent to your Email"+"\"}");
 	}
 	
+	@RequestMapping(value = "/changepassword", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO dto){
+		logger.info("change password service start");
+		try {
+			if(courseDAOImpl.validateRecoveryPassword(dto)) {
+				logger.info("Recovery Password Validation passed");
+				courseDAOImpl.changePassword(dto);
+			}else {
+				logger.info("Incorrect Recovery Password, Sending error response");
+				return ResponseEntity.status(500).body("{\"message\" : \""+"Incorrect Recovery password, Please try again"+"\"}");
+			}
+		}catch(Exception e){
+			logger.error("error while resetting password: "+ e.getMessage());
+			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while Changing password, Please try again"+"\"}");
+		}
+		logger.info("change password service end");
+		return ResponseEntity.status(200).body("{\"message\" : \""+"Password changed Successfully, directing to Login Page"+"\"}");
+	}
 	
 	@RequestMapping(value = "/getUserDetail", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<?> userDetailService(@RequestParam String id) throws SQLException {
+	public ResponseEntity<?> userDetailService(@RequestParam String id) {
 		UserRegistration user = null;
 		logger.info("userDetailService start");
 		try {
 			user = courseDAOImpl.fetchUserDetails(id);
 			user.setPassword(null);
 		}catch(Exception e){
-			logger.info("error while fetching user details: "+ e.getMessage());
+			logger.error("error while fetching user details: "+ e.getMessage());
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while retrieving  User Details"+"\"}");
 		}
 		logger.info("userDetailService end");

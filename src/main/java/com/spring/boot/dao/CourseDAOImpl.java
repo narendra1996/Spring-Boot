@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import com.spring.boot.dto.ChangePasswordDTO;
 import com.spring.boot.entity.UserRegistration;
 import com.spring.boot.repository.UserRegistrationRepository;
 
@@ -30,10 +32,9 @@ public class CourseDAOImpl {
 		try {
 			userRegistrationRepository.save(dto);
 		}catch(Exception e) {
-			log.info("Exception while registering User: "+ e);
+			log.error("Exception while registering User: "+ e.getMessage());
 			throw(e);
 		}
-		
 	}
 	
 	public boolean validateEmail(String email) {
@@ -48,7 +49,7 @@ public class CourseDAOImpl {
 				valid = true;
 			}	
 		}catch(Exception e) {
-			logger.info("error occured while validating email");
+			logger.error("error occured while validating email");
 		}
 		logger.info("validating Email end");
 		return valid;
@@ -68,19 +69,19 @@ public class CourseDAOImpl {
 				valid = true;
 			}	
 		}catch(Exception e) {
-			logger.info("error occured while validating password");
+			logger.error("error occured while validating password");
 		}
 		logger.info("validating Password end");
 		return valid;
 		
 	}
 	
-	public UserRegistration  fetchUserDetails(String id) throws Exception{
+	public UserRegistration  fetchUserDetails(String id){
 		UserRegistration user = null;
 		try {
 			user = userRegistrationRepository.getUser(id);
 		}catch(Exception e) {
-			log.info("Exception while registering User: "+ e);
+			log.error("Exception while registering User: "+ e.getMessage());
 			throw(e);
 		}
 		return user;
@@ -88,13 +89,13 @@ public class CourseDAOImpl {
 	
 	public void restPassword(String email, String tempPassword) {
 		try {
-			String query = "UPDATE USERS SET TEMP_PASSWORD=:password WHERE EMAIL=:emailId";
+			String query = "UPDATE USERS SET TEMP_PASSWORD=:password WHERE UPPER(EMAIL)=UPPER(:emailId)";
 			Map<String,String> map = new HashMap<String,String>();
 			map.put("password", tempPassword);
 			map.put("emailId", email);
 			jdbcTemplate.update(query, map);
 		}catch(Exception e) {
-			logger.info("error while updating temporary Password: "+e.getMessage());
+			logger.error("error while updating temporary Password: "+e.getMessage());
 		}
 	}
 
@@ -103,9 +104,45 @@ public class CourseDAOImpl {
 		try {
 			user = userRegistrationRepository.getUserDetails(email, password);
 		}catch(Exception e) {
-			log.info("Exception while registering User: "+ e);
+			log.error("Exception while registering User: "+ e.getMessage());
 			throw(e);
 		}
 		return user;
+	}
+	
+	public boolean validateRecoveryPassword(ChangePasswordDTO dto){
+		boolean valid = false;
+		logger.info("validating Recovery Password start");
+		try {
+			int count = 0;
+			String query = "SELECT COUNT(*) FROM USERS WHERE TEMP_PASSWORD=:password AND UPPER(EMAIL)=UPPER(:emailId)";
+			Map<String,String> map = new HashMap<String,String>();
+			map.put("password", dto.getResetPassword());
+			map.put("emailId", dto.getEmail());
+			count = jdbcTemplate.queryForObject(query, map, Integer.class);
+			if(count == 1) {
+				valid = true;
+			}
+		}catch(Exception e) {
+			log.error("Exception while validating recovery password: "+ e.getMessage());
+			throw(e);
+		}
+		logger.info("validating Recovery Password start");
+		return valid;
+	}
+	
+	public void changePassword(ChangePasswordDTO dto){
+		logger.info("Password change start");
+		try {
+			String query = "UPDATE USERS SET PASSWORD=:password, TEMP_PASSWORD=null WHERE UPPER(EMAIL)=UPPER(:emailId)";
+			Map<String,String> map = new HashMap<String,String>();
+			map.put("password", dto.getPassword());
+			map.put("emailId", dto.getEmail());
+			jdbcTemplate.update(query, map);
+		}catch(Exception e) {
+			log.error("Exception while changing password: "+ e.getMessage());
+			throw(e);
+		}
+		logger.info("Password change end");
 	}
 }
