@@ -10,7 +10,7 @@ public class UserService {
 	public String generateRestPassword() throws Exception{
 		String generatedString = null;
 		try {
-			 generatedString = RandomStringUtils.randomAlphanumeric(8);
+			 generatedString = RandomStringUtils.randomNumeric(6);
 		}catch(Exception e) {
 			throw(e);
 		}

@@ -92,9 +92,14 @@ public class CourseController {
 	public ResponseEntity<String> mailService(@RequestParam String emailId) {
 		logger.info("reset password service start");
 		try {
-			String tempPassword = userService.generateRestPassword();
-			courseDAOImpl.restPassword(emailId, tempPassword);
-			mailService.sendRecoveryEmail(emailId, tempPassword);	
+			if(!courseDAOImpl.validateEmail(emailId)) {
+				String tempPassword = userService.generateRestPassword();
+				courseDAOImpl.restPassword(emailId, tempPassword);
+				mailService.sendRecoveryEmail(emailId, tempPassword);	
+			}else {
+				logger.info("Email Id is not registered with us");
+				return ResponseEntity.status(500).body("{\"message\" : \""+"Email Id not registered with us, Please register"+"\"}");
+			}
 		}catch(Exception e){
 			logger.error("error while resetting password: "+ e.getMessage());
 			return ResponseEntity.status(500).body("{\"message\" : \""+"error occured while resetting  password, Please try again"+"\"}");
